@@ -45,20 +45,16 @@ $client = new Client($_ENV['BYTESHIP_API_KEY']);
 
 $file = fopen('photo.jpg', 'rb');
 
-try {
-    $uploaded = $client->upload(
-        $file,
-        filename: "photo.jpg",
-        contentType: "image/jpeg",
-        path: "uploads/photo.jpg",
-        visibility: Visibility::Public,
-        onProgress: function (UploadProgress $progress) {
-            echo round($progress->percent) . '% uploaded';
-        },
-    );
-} finally {
-    fclose($file);
-}
+$uploaded = $client->upload(
+    $file,
+    filename: "photo.jpg",
+    contentType: "image/jpeg",
+    path: "uploads/photo.jpg",
+    visibility: Visibility::Public,
+    onProgress: function (UploadProgress $progress) {
+        echo round($progress->percent) . '% uploaded';
+    },
+);
 
 echo "#{$uploaded->id} - {$uploaded->url}";
 ```
