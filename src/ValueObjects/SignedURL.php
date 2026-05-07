@@ -9,9 +9,9 @@ use DateTimeImmutable;
 final readonly class SignedURL
 {
     public function __construct(
-        public DateTimeImmutable $expiresAt,
         public string $fileId,
         public ?string $path,
         public string $url,
+        public DateTimeImmutable $expiresAt,
     ) {}
 }

@@ -22,11 +22,11 @@ final readonly class CompleteUploadResponse
 
         return new CompleteUploadResponse(
             new UploadedFile(
+                $file['id'],
+                $file['filename'],
+                $file['path'],
                 $file['byteSize'],
                 $file['etag'] ?? null,
-                $file['filename'],
-                $file['id'],
-                $file['path'],
                 FileStatus::from($file['status']),
                 $file['url'] ?? null,
                 Visibility::from($file['visibility']),

@@ -52,11 +52,11 @@ it('can write', function () {
         ->shouldReceive('upload')
         ->once()
         ->andReturn(new UploadedFile(
+            id: '1234567890',
+            filename: 'test.txt',
+            path: 'test.txt',
             byteSize: 42,
             etag: null,
-            filename: 'test.txt',
-            id: '1234567890',
-            path: 'test.txt',
             status: FileStatus::Ready,
             url: null,
             visibility: Visibility::Public,
@@ -70,11 +70,11 @@ it('can write a stream', function () {
         ->shouldReceive('upload')
         ->once()
         ->andReturn(new UploadedFile(
+            id: '1234567890',
+            filename: 'test.txt',
+            path: 'test.txt',
             byteSize: 42,
             etag: null,
-            filename: 'test.txt',
-            id: '1234567890',
-            path: 'test.txt',
             status: FileStatus::Ready,
             url: null,
             visibility: Visibility::Public,
@@ -99,16 +99,16 @@ it('can work with attributes', function (string $attribute, mixed $expected) {
         ->once()
         ->andReturn(new GetFileResponse(
             new File(
+                id: '1234567890',
+                filename: 'test.txt',
+                path: 'test.txt',
                 byteSize: 42,
                 contentType: 'text/plain',
-                createdAt: new DateTimeImmutable,
-                filename: 'test.txt',
-                id: '1234567890',
                 metadata: [],
-                path: 'test.txt',
                 status: FileStatus::Ready,
                 url: null,
                 visibility: Visibility::Public,
+                createdAt: new DateTimeImmutable,
             ),
         ));
 
@@ -211,11 +211,11 @@ it('can move', function () {
         ->shouldReceive('upload')
         ->once()
         ->andReturn(new UploadedFile(
+            id: '1234567890',
+            filename: 'hello.txt',
+            path: 'hello.txt',
             byteSize: 42,
             etag: null,
-            filename: 'hello.txt',
-            id: '1234567890',
-            path: 'hello.txt',
             status: FileStatus::Ready,
             url: null,
             visibility: Visibility::Public,
@@ -259,11 +259,11 @@ it('can copy', function () {
         ->shouldReceive('upload')
         ->once()
         ->andReturn(new UploadedFile(
+            id: '1234567890',
+            filename: 'hello.txt',
+            path: 'hello.txt',
             byteSize: 42,
             etag: null,
-            filename: 'hello.txt',
-            id: '1234567890',
-            path: 'hello.txt',
             status: FileStatus::Ready,
             url: null,
             visibility: Visibility::Public,
@@ -288,16 +288,16 @@ it('can get public URL', function () {
         ->once()
         ->andReturn(new GetFileResponse(
             new File(
+                id: '1234567890',
+                filename: 'test.txt',
+                path: 'test.txt',
                 byteSize: 42,
                 contentType: 'text/plain',
-                createdAt: new DateTimeImmutable,
-                filename: 'test.txt',
-                id: '1234567890',
                 metadata: [],
-                path: 'test.txt',
                 status: FileStatus::Ready,
                 url: 'https://cdn.byteship.dev/f/12345/test.txt',
                 visibility: Visibility::Public,
+                createdAt: new DateTimeImmutable,
             ),
         ));
 
@@ -310,10 +310,10 @@ it('can get private URL', function () {
         ->once()
         ->andReturn(new CreateSignedURLResponse(
             new SignedURL(
-                new DateTimeImmutable,
                 '1234567',
                 'test.txt',
-                'https://cdn.byteship.dev/f/12345/test.txt?token=1234567'
+                'https://cdn.byteship.dev/f/12345/test.txt?token=1234567',
+                new DateTimeImmutable,
             )
         ));
 

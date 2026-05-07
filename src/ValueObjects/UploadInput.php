@@ -12,12 +12,12 @@ final readonly class UploadInput
     public function __construct(
         public mixed $file,
         public ?string $filename = null,
+        public ?string $folder = null,
+        public ?string $path = null,
         public ?string $contentType = null,
         public ?int $byteSize = null,
         public ?string $checksumSha256 = null,
-        public ?string $folder = null,
         public ?array $metadata = null,
-        public ?string $path = null,
         public ?Visibility $visibility = null,
     ) {}
 }

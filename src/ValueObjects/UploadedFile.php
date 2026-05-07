@@ -10,11 +10,11 @@ use Devhammed\Byteship\Enums\Visibility;
 final readonly class UploadedFile
 {
     public function __construct(
+        public string $id,
+        public string $filename,
+        public string $path,
         public int $byteSize,
         public ?string $etag,
-        public string $filename,
-        public string $id,
-        public string $path,
         public FileStatus $status,
         public ?string $url,
         public Visibility $visibility,

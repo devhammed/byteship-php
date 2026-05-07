@@ -97,8 +97,8 @@ class Client
 
         return new CreateUploadTokenResponse(
             new UploadToken(
-                new DateTimeImmutable($token['expiresAt']),
                 $token['token'],
+                new DateTimeImmutable($token['expiresAt']),
             ),
         );
     }
@@ -162,10 +162,10 @@ class Client
 
         return new CreateSignedURLResponse(
             new SignedURL(
-                new DateTimeImmutable($signedUrl['expiresAt']),
                 $signedUrl['fileId'],
                 $signedUrl['path'] ?? null,
                 $signedUrl['url'],
+                new DateTimeImmutable($signedUrl['expiresAt']),
             ),
         );
     }
@@ -180,16 +180,16 @@ class Client
 
         return new GetFileResponse(
             new File(
+                $file['id'],
+                $file['filename'],
+                $file['path'],
                 $file['byteSize'],
                 $file['contentType'],
-                new DateTimeImmutable($file['createdAt']),
-                $file['filename'],
-                $file['id'],
                 $file['metadata'] ?? [],
-                $file['path'],
                 FileStatus::from($file['status']),
                 $file['url'] ?? null,
                 Visibility::from($file['visibility']),
+                new DateTimeImmutable($file['createdAt']),
             ),
         );
     }
@@ -300,8 +300,8 @@ class Client
                 if ($onFileProgress !== null) {
                     $progress = function (UploadProgress $progressValue) use ($item, $index, $onFileProgress): void {
                         $onFileProgress(new UploadManyProgress(
-                            $item,
                             $index,
+                            $item,
                             $progressValue->loaded,
                             $progressValue->percent,
                             $progressValue->total,

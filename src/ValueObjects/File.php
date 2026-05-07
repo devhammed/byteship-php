@@ -12,15 +12,15 @@ final readonly class File
 {
     /** @param array<string, mixed> $metadata */
     public function __construct(
+        public string $id,
+        public string $filename,
+        public string $path,
         public int $byteSize,
         public string $contentType,
-        public DateTimeImmutable $createdAt,
-        public string $filename,
-        public string $id,
         public array $metadata,
-        public string $path,
         public FileStatus $status,
         public ?string $url,
         public Visibility $visibility,
+        public DateTimeImmutable $createdAt,
     ) {}
 }

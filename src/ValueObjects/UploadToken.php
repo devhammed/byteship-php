@@ -9,7 +9,7 @@ use DateTimeImmutable;
 final readonly class UploadToken
 {
     public function __construct(
-        public DateTimeImmutable $expiresAt,
         public string $token,
+        public DateTimeImmutable $expiresAt,
     ) {}
 }

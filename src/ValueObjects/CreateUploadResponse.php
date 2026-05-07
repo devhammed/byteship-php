@@ -28,13 +28,13 @@ final readonly class CreateUploadResponse
                 $file['url'] ?? null,
             ),
             new UploadSession(
-                new DateTimeImmutable($upload['expiresAt']),
-                $upload['fileId'],
-                $upload['headers'] ?? [],
                 $upload['id'],
+                $upload['fileId'],
                 $upload['key'],
+                $upload['headers'] ?? [],
                 UploadMethod::from($upload['method']),
                 $upload['url'],
+                new DateTimeImmutable($upload['expiresAt']),
             ),
         );
     }
