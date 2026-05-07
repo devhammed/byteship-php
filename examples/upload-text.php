@@ -17,8 +17,6 @@ $file = str_repeat("Hello Byteship!\n", 128);
 
 $uploaded = $client->upload(
     $file,
-    filename: 'upload-text.txt',
-    contentType: 'text/plain',
     path: 'upload-text.txt',
     visibility: Visibility::Public,
     onProgress: function (UploadProgress $progress) {

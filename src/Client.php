@@ -148,6 +148,13 @@ class Client
             ->wait();
     }
 
+    public function completePathUpload(string $path, string $uploadId): CompleteUploadResponse
+    {
+        return $this
+            ->completePathUploadAsync($path, $uploadId)
+            ->wait();
+    }
+
     public function createSignedUrl(string $filePathOrId, ?int $expiresInSeconds = null): CreateSignedURLResponse
     {
         $payload = $this->omitEmpty(['expiresInSeconds' => $expiresInSeconds]);
@@ -351,9 +358,18 @@ class Client
         return array_values(array_filter($results));
     }
 
-    public function buildCompletionUrl(string $uploadId): string
+    public function getUploadCompletionUrl(string $uploadId, bool $absolute = false): string
     {
-        return $this->buildUrl('/uploads/'.rawurlencode($uploadId).'/complete');
+        $url = '/uploads/'.urlencode($uploadId).'/complete';
+
+        return $absolute ? $this->buildUrl($url) : $url;
+    }
+
+    public function getPathUploadCompletionUrl(string $path, bool $absolute = false): string
+    {
+        $url = '/files/'.$this->quoteFilePath($path).'/upload/complete';
+
+        return $absolute ? $this->buildUrl($url) : $url;
     }
 
     /**
@@ -416,11 +432,14 @@ class Client
                 $resolvedByteSize,
                 $created->upload->headers,
                 $onProgress,
-            )->then(fn () => $this->completeUploadAsync(
-                $created->upload->id,
-                $created->file->id,
-                $created->upload->key,
-            )))
+            )->then(fn () => $path === null
+                ? $this->completeUploadAsync(
+                    $created->upload->id,
+                    $created->file->id,
+                    $created->upload->key,
+                )
+                : $this->completePathUploadAsync($path, $created->upload->id))
+            )
             ->then(fn (CompleteUploadResponse $completed) => $completed->file);
     }
 
@@ -471,8 +490,17 @@ class Client
     {
         return $this->requestJsonAsync(
             'POST',
-            $this->buildCompletionUrl($uploadId),
+            $this->getUploadCompletionUrl($uploadId),
             ['fileId' => $fileId, 'key' => $key],
+        )->then(fn (array $data) => CompleteUploadResponse::fromArray($data));
+    }
+
+    protected function completePathUploadAsync(string $path, string $uploadId): PromiseInterface
+    {
+        return $this->requestJsonAsync(
+            'POST',
+            $this->getPathUploadCompletionUrl($path),
+            ['uploadId' => $uploadId],
         )->then(fn (array $data) => CompleteUploadResponse::fromArray($data));
     }
 

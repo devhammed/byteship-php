@@ -147,6 +147,34 @@ it('completes an upload', function (): void {
         ->and($history)->toHaveCount(1);
 });
 
+it('completes a path upload', function (): void {
+    $mock = new MockHandler([
+        new Response(200, [], json_encode([
+            'file' => [
+                'byteSize' => 10,
+                'etag' => 'etag',
+                'filename' => 'file.txt',
+                'id' => 'file_1',
+                'path' => 'uploads/file.txt',
+                'status' => 'ready',
+                'url' => 'https://cdn.example.com/file.txt',
+                'visibility' => 'public',
+            ],
+            'upload' => [
+                'id' => 'upload_1',
+                'status' => 'completed',
+            ],
+        ])),
+    ]);
+    $history = [];
+    $client = makeClient($mock, $history);
+
+    $response = $client->completePathUpload('uploads/file.txt', 'upload_1', 'key_1');
+
+    expect($response->upload->status)->toBe(UploadSessionStatus::Completed)
+        ->and($history)->toHaveCount(1);
+});
+
 it('creates a signed url', function (): void {
     $mock = new MockHandler([
         new Response(200, [], json_encode([

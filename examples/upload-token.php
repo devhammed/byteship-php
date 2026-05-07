@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Devhammed\Byteship\Client;
-use Devhammed\Byteship\Enums\Visibility;
 use Devhammed\Byteship\ValueObjects\UploadProgress;
 use Dotenv\Dotenv;
 
@@ -26,10 +25,7 @@ $file = str_repeat("Hello Byteship!\n", 128);
 
 $uploaded = $publicClient->upload(
     $file,
-    filename: 'upload-token.txt',
-    contentType: 'text/plain',
     path: 'uploads/upload-token.txt',
-    visibility: Visibility::Public,
     onProgress: function (UploadProgress $progress) {
         echo 'Upload token: '.round($progress->percent, 2).'% uploaded'.PHP_EOL;
     },

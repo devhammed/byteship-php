@@ -339,7 +339,7 @@ it('can get temporary upload URL', function () {
         ));
 
     $this->client
-        ->shouldReceive('buildCompletionUrl')
+        ->shouldReceive('getPathUploadCompletionUrl')
         ->once()
         ->andReturn('https://cdn.byteship.dev/f/12345/test.txt/upload/complete');
 
@@ -368,10 +368,10 @@ it('can get temporary upload URL', function () {
 
     expect($response)->toBeArray()
         ->and($response['file_id'])->toBe('1234567')
+        ->and($response['upload_id'])->toBe('78901345')
+        ->and($response['upload_token'])->toBe('sbut_12345678')
         ->and($response['url'])->toBe('https://r2.cloudfareapis.com/f/1234567/d34db33f/test.txt')
         ->and($response['complete_url'])->toBe('https://cdn.byteship.dev/f/12345/test.txt/upload/complete')
         ->and($response['headers'])->toBe(['content-type' => 'text/plain'])
-        ->and($response['upload_key'])->toBe('d34db33f')
-        ->and($response['upload_token'])->toBe('sbut_12345678')
         ->and($response['expires_at'])->toBeInstanceOf(DateTimeImmutable::class);
 });
