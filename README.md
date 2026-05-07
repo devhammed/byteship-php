@@ -84,10 +84,9 @@ You can check this [folder](./examples) for more usage examples.
 
 This package ships with a service provider for Laravel that will automatically setup the client for your application.
 
-To get started, create an environment variable named `BYTESHIP_API_KEY` with your Byteship API key:
+To get started, create an environment variable named `BYTESHIP_API_KEY` in your `.env` file with your Byteship API key:
 
 ```bash
-// .env
 BYTESHIP_API_KEY=your-api-key
 ```
 
