@@ -117,6 +117,7 @@ Storage::disk('byteship')->put('hello.txt', 'Hello, Byteship!'); // true/false
 Storage::disk('byteship')->get('hello.txt'); // "Hello, Byteship!"
 Storage::disk('byteship')->url('hello.txt'); // "https://cdn.byteship.dev/f/12345/hello.txt" (only for public files)
 Storage::disk('byteship')->temporaryUrl('hello.txt', now()->addHour()); // "https://cdn.byteship.dev/f/12345/hello.txt?token=secret-token" (only for private files)
+Storage::disk('byteship')->temporaryUploadUrl('hello.txt', now()->addHour(), ['byte_size' => 1024]) // ['file_id' => '123', 'upload_id' => '456', 'upload_token' => 'd34db33f', 'url' => 'https://...', 'complete_url' => 'https://...', 'headers' => ['content-type' => 'text/plain']] (use the complete URL + upload ID + upload_token to complete the upload after sending the file to the url + headers)
 Storage::disk('byteship')->delete('hello.txt'); // true/false
 Storage::disk('byteship')->exists('hello.txt'); // true/false
 Storage::disk('byteship')->mimeType('hello.txt'); // "text/plain"
