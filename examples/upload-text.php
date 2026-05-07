@@ -30,4 +30,4 @@ echo "#{$uploaded->id} - {$uploaded->filename} - {$uploaded->byteSize} - {$uploa
 
 echo str_repeat('-', 100).PHP_EOL;
 
-echo $client->downloadFile($uploaded->id);
+echo $client->downloadFile($uploaded->path);
