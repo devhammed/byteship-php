@@ -558,7 +558,6 @@ class Client
 
     /**
      * @param  array<string, mixed>|null  $payload
-     * @return PromiseInterface<array<string, mixed>>
      */
     protected function requestJsonAsync(string $method, string $path, ?array $payload = null): PromiseInterface
     {
@@ -686,7 +685,7 @@ class Client
         if (is_resource($file)) {
             $meta = stream_get_meta_data($file);
 
-            if (isset($meta['uri']) && is_string($meta['uri']) && $meta['uri'] !== '') {
+            if (isset($meta['uri'])) {
                 return basename($meta['uri']);
             }
         }
@@ -706,13 +705,7 @@ class Client
             return $contentType;
         }
 
-        $guessed = null;
-
-        if ($guessed === false || $guessed === null) {
-            $guessed = MimeType::fromFilename($filename);
-        }
-
-        return $guessed ?: 'application/octet-stream';
+        return MimeType::fromFilename($filename) ?: 'application/octet-stream';
     }
 
     protected function resolveByteSize(StreamInterface $stream, ?int $byteSize): int
