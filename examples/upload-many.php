@@ -18,16 +18,16 @@ $client = new Client($_ENV['BYTESHIP_API_KEY']);
 $files = [
     new UploadInput(
         file: str_repeat("Hello Byteship 1!\n", 256),
-        filename: 'hello-1.txt',
+        filename: 'upload-many-1.txt',
         contentType: 'text/plain',
-        path: 'hello-1.txt',
+        path: 'upload-many-1.txt',
         visibility: Visibility::Public,
     ),
     new UploadInput(
         file: str_repeat("Hello Byteship 2!\n", 256),
-        filename: 'hello-2.txt',
+        filename: 'upload-many-2.txt',
         contentType: 'text/plain',
-        path: 'hello-2.txt',
+        path: 'upload-many-2.txt',
         visibility: Visibility::Public,
     ),
 ];

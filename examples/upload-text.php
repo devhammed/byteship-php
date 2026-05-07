@@ -17,16 +17,16 @@ $file = str_repeat("Hello Byteship!\n", 128);
 
 $uploaded = $client->upload(
     $file,
-    filename: 'hello.txt',
+    filename: 'upload-text.txt',
     contentType: 'text/plain',
-    path: 'hello.txt',
+    path: 'upload-text.txt',
     visibility: Visibility::Public,
     onProgress: function (UploadProgress $progress) {
-        echo round($progress->percent, 2).'% uploaded'.PHP_EOL;
+        echo 'Upload text: '.round($progress->percent, 2).'% uploaded'.PHP_EOL;
     },
 );
 
-echo "#{$uploaded->id} - {$uploaded->filename} - {$uploaded->byteSize} - {$uploaded->url}\n";
+echo "Upload text: #{$uploaded->id} - {$uploaded->filename} - {$uploaded->byteSize} - {$uploaded->url}\n";
 
 echo str_repeat('-', 100).PHP_EOL;
 

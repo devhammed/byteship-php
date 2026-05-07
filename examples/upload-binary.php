@@ -17,13 +17,13 @@ $file = fopen(__DIR__.'/devhammed.png', 'rb');
 
 $uploaded = $client->upload(
     $file,
-    filename: 'devhammed.png',
+    filename: 'upload-binary.png',
     contentType: 'image/png',
-    path: 'devhammed.png',
+    path: 'upload-binary.png',
     visibility: Visibility::Public,
     onProgress: function (UploadProgress $progress) {
-        echo round($progress->percent, 2).'% uploaded'.PHP_EOL;
+        echo 'Upload binary: '.round($progress->percent, 2).'% uploaded'.PHP_EOL;
     },
 );
 
-echo "#{$uploaded->id} - {$uploaded->filename} - {$uploaded->byteSize} - {$uploaded->url}\n";
+echo "Upload binary: #{$uploaded->id} - {$uploaded->filename} - {$uploaded->byteSize} - {$uploaded->url}\n";
