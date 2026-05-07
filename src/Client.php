@@ -93,7 +93,9 @@ class Client
             'maxUploadBytes' => $maxUploadBytes,
             'visibility' => $visibility?->value,
         ]);
-        $data = $this->requestJson('POST', '/upload-tokens', $payload);
+        $data = $this
+            ->requestJsonAsync('POST', '/upload-tokens', $payload)
+            ->wait();
         $token = $data['uploadToken'];
 
         return new CreateUploadTokenResponse(
@@ -113,18 +115,15 @@ class Client
         ?array $metadata = null,
         ?Visibility $visibility = null,
     ): CreateUploadResponse {
-        $payload = $this->omitNulls([
-            'byteSize' => $byteSize,
-            'checksumSha256' => $checksumSha256,
-            'contentType' => $contentType,
-            'filename' => $filename,
-            'folder' => $folder,
-            'metadata' => $metadata,
-            'visibility' => $visibility?->value,
-        ]);
-        $data = $this->requestJson('POST', '/uploads', $payload);
-
-        return $this->createUploadResponse($data);
+        return $this->createUploadAsync(
+            $byteSize,
+            $contentType,
+            $filename,
+            $checksumSha256,
+            $folder,
+            $metadata,
+            $visibility,
+        )->wait();
     }
 
     public function createFileUpload(
@@ -135,37 +134,31 @@ class Client
         ?array $metadata = null,
         ?Visibility $visibility = null,
     ): CreateUploadResponse {
-        $payload = $this->omitNulls([
-            'byteSize' => $byteSize,
-            'checksumSha256' => $checksumSha256,
-            'contentType' => $contentType,
-            'metadata' => $metadata,
-            'visibility' => $visibility?->value,
-        ]);
-        $data = $this->requestJson('PUT', '/files/'.$this->quoteFilePath($path), $payload);
-
-        return $this->createUploadResponse($data);
+        return $this->createFileUploadAsync(
+            $path,
+            $byteSize,
+            $contentType,
+            $checksumSha256,
+            $metadata,
+            $visibility,
+        )->wait();
     }
 
     public function completeUpload(string $uploadId, string $fileId, string $key): CompleteUploadResponse
     {
-        $data = $this->requestJson(
-            'POST',
-            '/uploads/'.rawurlencode($uploadId).'/complete',
-            ['fileId' => $fileId, 'key' => $key],
-        );
-
-        return $this->completeUploadResponse($data);
+        return $this
+            ->completeUploadAsync($uploadId, $fileId, $key)
+            ->wait();
     }
 
     public function createSignedUrl(string $filePathOrId, ?int $expiresInSeconds = null): CreateSignedURLResponse
     {
         $payload = $this->omitNulls(['expiresInSeconds' => $expiresInSeconds]);
-        $data = $this->requestJson(
+        $data = $this->requestJsonAsync(
             'POST',
             '/files/'.$this->quoteFilePath($filePathOrId).'/signed-url',
             $payload,
-        );
+        )->wait();
         $signedUrl = $data['signedUrl'];
 
         return new CreateSignedURLResponse(
@@ -180,7 +173,9 @@ class Client
 
     public function getFile(string $filePathOrId): GetFileResponse
     {
-        $data = $this->requestJson('GET', '/files/'.$this->quoteFilePath($filePathOrId));
+        $data = $this
+            ->requestJsonAsync('GET', '/files/'.$this->quoteFilePath($filePathOrId))
+            ->wait();
         $file = $data['file'];
 
         return new GetFileResponse(
@@ -229,7 +224,9 @@ class Client
 
     public function deleteFile(string $filePathOrId): DeleteFileResponse
     {
-        $data = $this->requestJson('DELETE', '/files/'.$this->quoteFilePath($filePathOrId));
+        $data = $this
+            ->requestJsonAsync('DELETE', '/files/'.$this->quoteFilePath($filePathOrId))
+            ->wait();
 
         $file = $data['file'];
 
@@ -533,31 +530,6 @@ class Client
 
     /**
      * @param  array<string, mixed>|null  $payload
-     * @return array<string, mixed>
-     */
-    protected function requestJson(string $method, string $path, ?array $payload = null): array
-    {
-        $options = [
-            'headers' => $this->defaultHeaders(),
-            'timeout' => $this->timeout,
-            'http_errors' => false,
-        ];
-
-        if ($payload !== null) {
-            $options['json'] = $payload;
-        }
-
-        try {
-            $response = $this->client->request($method, $this->buildUrl($path), $options);
-        } catch (GuzzleException $error) {
-            throw new Error('api_request_failed', $error->getMessage());
-        }
-
-        return $this->parseResponse($response);
-    }
-
-    /**
-     * @param  array<string, mixed>|null  $payload
      */
     protected function requestJsonAsync(string $method, string $path, ?array $payload = null): PromiseInterface
     {
@@ -574,7 +546,15 @@ class Client
         return $this->client
             ->requestAsync($method, $this->buildUrl($path), $options)
             ->then(function (ResponseInterface $response) {
-                return $this->parseResponse($response);
+                $status = $response->getStatusCode();
+
+                $body = $response->getBody()->getContents();
+
+                if ($status < 200 || $status >= 300) {
+                    throw $this->errorFromResponse($status, $body);
+                }
+
+                return $this->readJson($body);
             })
             ->otherwise(function (Throwable $error) {
                 throw new Error('api_request_failed', $error->getMessage());
@@ -591,22 +571,6 @@ class Client
             'Authorization' => 'Bearer '.$this->authToken,
             'User-Agent' => self::USER_AGENT,
         ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function parseResponse(ResponseInterface $response): array
-    {
-        $status = $response->getStatusCode();
-
-        $body = $response->getBody()->getContents();
-
-        if ($status < 200 || $status >= 300) {
-            throw $this->errorFromResponse($status, $body);
-        }
-
-        return $this->readJson($body);
     }
 
     protected function errorFromResponse(int $status, string $body): Error
