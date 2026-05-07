@@ -554,7 +554,7 @@ class Client
                     throw $this->errorFromResponse($status, $body);
                 }
 
-                return $this->readJson($body);
+                return $this->readJsonOrNull($body) ?? [];
             })
             ->otherwise(function (Throwable $error) {
                 throw new Error('api_request_failed', $error->getMessage());
@@ -758,24 +758,6 @@ class Client
         }
 
         return implode('/', $segments);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function readJson(string $body): array
-    {
-        if ($body === '') {
-            return [];
-        }
-
-        try {
-            $decoded = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $error) {
-            throw new Error('invalid_json_response', $error->getMessage());
-        }
-
-        return is_array($decoded) ? $decoded : [];
     }
 
     /**
