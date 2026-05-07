@@ -367,7 +367,7 @@ class Client
         ?Visibility $visibility = null,
         ?callable $onProgress = null,
     ): PromiseInterface {
-        if (is_resource($file) && (fstat($file)['mode'] & 010000) != 0) {
+        if (is_resource($file) && (fstat($file)['mode'] & 010000) !== 0) {
             $stream = new PumpStream(function ($length) use ($file) {
                 $data = fread($file, $length);
 
