@@ -287,7 +287,7 @@ class Adapter implements FilesystemAdapter, PublicUrlGenerator, TemporaryUrlGene
     public function temporaryUrl(string $path, DateTimeInterface $expiresAt, Config $config): string
     {
         try {
-            $now = new DateTimeImmutable('now');
+            $now = new DateTimeImmutable;
 
             $response = $this->client->createSignedUrl(
                 $this->prefixer->prefixPath($path),
