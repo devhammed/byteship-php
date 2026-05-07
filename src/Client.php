@@ -351,9 +351,9 @@ class Client
         return array_values(array_filter($results));
     }
 
-    public function buildUrl(string $path): string
+    public function buildCompletionUrl(string $uploadId): string
     {
-        return $this->baseUrl.mb_ltrim($path, '/');
+        return $this->buildUrl('/uploads/'.rawurlencode($uploadId).'/complete');
     }
 
     /**
@@ -471,7 +471,7 @@ class Client
     {
         return $this->requestJsonAsync(
             'POST',
-            '/uploads/'.rawurlencode($uploadId).'/complete',
+            $this->buildCompletionUrl($uploadId),
             ['fileId' => $fileId, 'key' => $key],
         )->then(fn (array $data) => CompleteUploadResponse::fromArray($data));
     }
@@ -708,5 +708,10 @@ class Client
         }
 
         return is_array($decoded) ? $decoded : null;
+    }
+
+    protected function buildUrl(string $path): string
+    {
+        return $this->baseUrl.mb_ltrim($path, '/');
     }
 }

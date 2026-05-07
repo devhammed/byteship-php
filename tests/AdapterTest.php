@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 use Devhammed\Byteship\Client;
 use Devhammed\Byteship\Enums\FileStatus;
+use Devhammed\Byteship\Enums\UploadMethod;
 use Devhammed\Byteship\Enums\Visibility;
 use Devhammed\Byteship\Error;
 use Devhammed\Byteship\Flysystem\Adapter;
 use Devhammed\Byteship\ValueObjects\CreateSignedURLResponse;
+use Devhammed\Byteship\ValueObjects\CreateUploadResponse;
+use Devhammed\Byteship\ValueObjects\CreateUploadTokenResponse;
 use Devhammed\Byteship\ValueObjects\DeletedFile;
 use Devhammed\Byteship\ValueObjects\DeleteFileResponse;
 use Devhammed\Byteship\ValueObjects\File;
 use Devhammed\Byteship\ValueObjects\GetFileResponse;
+use Devhammed\Byteship\ValueObjects\PendingFile;
 use Devhammed\Byteship\ValueObjects\SignedURL;
 use Devhammed\Byteship\ValueObjects\UploadedFile;
+use Devhammed\Byteship\ValueObjects\UploadSession;
+use Devhammed\Byteship\ValueObjects\UploadToken;
 use GuzzleHttp\Psr7\Utils;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Application;
@@ -315,8 +321,58 @@ it('can get private URL', function () {
                 'test.txt',
                 'https://cdn.byteship.dev/f/12345/test.txt?token=1234567',
                 new DateTimeImmutable,
-            )
+            ),
         ));
 
     expect(Storage::temporaryUrl('test.txt', now()->addHour()))->toBe('https://cdn.byteship.dev/f/12345/test.txt?token=1234567');
+});
+
+it('can get temporary upload URL', function () {
+    $this->client
+        ->shouldReceive('createUploadToken')
+        ->once()
+        ->andReturn(new CreateUploadTokenResponse(
+            new UploadToken(
+                'sbut_12345678',
+                new DateTimeImmutable,
+            ),
+        ));
+
+    $this->client
+        ->shouldReceive('buildCompletionUrl')
+        ->once()
+        ->andReturn('https://cdn.byteship.dev/f/12345/test.txt/upload/complete');
+
+    $this->client
+        ->shouldReceive('createFileUpload')
+        ->once()
+        ->andReturn(new CreateUploadResponse(
+            new PendingFile(
+                '1234567',
+                'test.txt',
+                FileStatus::Pending,
+                null,
+            ),
+            new UploadSession(
+                '78901345',
+                '1234567',
+                'd34db33f',
+                ['content-type' => 'text/plain'],
+                UploadMethod::Single,
+                'https://r2.cloudfareapis.com/f/1234567/d34db33f/test.txt',
+                new DateTimeImmutable,
+            ),
+        ));
+
+    $response = Storage::temporaryUploadUrl('test.txt', now()->addHour());
+
+    expect($response)->toBeArray()
+        ->and($response['url'])->toBe('https://r2.cloudfareapis.com/f/1234567/d34db33f/test.txt')
+        ->and($response['headers'])->toBe(['content-type' => 'text/plain'])
+        ->and($response['complete'])->toBeArray()
+        ->and($response['complete']['url'])->toBe('https://cdn.byteship.dev/f/12345/test.txt/upload/complete')
+        ->and($response['complete']['file_id'])->toBe('1234567')
+        ->and($response['complete']['key'])->toBe('d34db33f')
+        ->and($response['complete']['token'])->toBe('sbut_12345678')
+        ->and($response['complete']['expires_at'])->toBeInstanceOf(DateTimeImmutable::class);
 });

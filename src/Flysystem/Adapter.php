@@ -312,7 +312,7 @@ class Adapter implements FilesystemAdapter, PublicUrlGenerator, TemporaryUrlGene
 
             $absolutePath = $this->prefixer->prefixPath($path);
 
-            $visibility = $options['visibility'] ?? $this->visibility;
+            $visibility = Visibility::from($options['visibility'] ?? $this->visibility);
 
             $byteSize = $options['byte_size'] ?? 0;
 
@@ -336,7 +336,7 @@ class Adapter implements FilesystemAdapter, PublicUrlGenerator, TemporaryUrlGene
                 'url' => $fileUpload->upload->url,
                 'headers' => $fileUpload->upload->headers,
                 'complete' => [
-                    'url' => $this->client->buildUrl('/uploads/'.rawurlencode($fileUpload->upload->id).'/complete'),
+                    'url' => $this->client->buildCompletionUrl($fileUpload->upload->id),
                     'file_id' => $fileUpload->file->id,
                     'key' => $fileUpload->upload->key,
                     'token' => $token->uploadToken->token,
