@@ -311,7 +311,7 @@ class Client
 
                 yield $index => $this->uploadAsync(
                     $item->file,
-                    $this->joinFilePath($pathPrefix, $item->path ?? $item->filename),
+                    $item->path ?? $this->joinFilePath($pathPrefix, $item->filename),
                     $item->filename,
                     $item->contentType,
                     $item->byteSize,
