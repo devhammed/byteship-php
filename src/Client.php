@@ -489,10 +489,9 @@ class Client
 
         if ($onProgress !== null) {
             $progress = function (int $downloadTotal, int $downloaded, int $uploadTotal, int $uploaded) use ($byteSize, $onProgress): void {
-                $loaded = $uploaded;
                 $onProgress(new UploadProgress(
-                    $loaded,
-                    $this->progressPercent($loaded, $byteSize),
+                    $uploaded,
+                    $byteSize <= 0 ? 0.0 : min(100.0, ($uploaded / $byteSize) * 100.0),
                     $byteSize,
                 ));
             };
@@ -712,15 +711,6 @@ class Client
         }
 
         return $remaining;
-    }
-
-    protected function progressPercent(int $loaded, int $total): float
-    {
-        if ($total <= 0) {
-            return 0.0;
-        }
-
-        return min(100.0, ($loaded / $total) * 100.0);
     }
 
     /**
