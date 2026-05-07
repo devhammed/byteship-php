@@ -308,17 +308,17 @@ class Adapter implements FilesystemAdapter, PublicUrlGenerator, TemporaryUrlGene
     public function temporaryUploadUrl(string $path, DateTimeInterface $expiresAt, array $options = []): array
     {
         try {
-            $now = new DateTimeImmutable;
-
-            $absolutePath = $this->prefixer->prefixPath($path);
-
-            $visibility = Visibility::from($options['visibility'] ?? $this->visibility);
-
             $byteSize = $options['byte_size'] ?? 0;
 
             if ($byteSize <= 0) {
                 throw new RuntimeException('You must provide `byte_size` in the options and it must be a positive integer.');
             }
+
+            $now = new DateTimeImmutable;
+
+            $absolutePath = $this->prefixer->prefixPath($path);
+
+            $visibility = Visibility::from($options['visibility'] ?? $this->visibility);
 
             $folder = dirname($absolutePath);
 
