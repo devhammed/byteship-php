@@ -339,11 +339,11 @@ class Adapter implements FilesystemAdapter, PublicUrlGenerator, TemporaryUrlGene
             return [
                 'file_id' => $fileUpload->file->id,
                 'url' => $fileUpload->upload->url,
+                'complete_url' => $this->client->buildCompletionUrl($fileUpload->upload->id),
                 'headers' => $fileUpload->upload->headers,
                 'upload_key' => $fileUpload->upload->key,
                 'upload_token' => $token->uploadToken->token,
                 'expires_at' => $token->uploadToken->expiresAt,
-                'complete_url' => $this->client->buildCompletionUrl($fileUpload->upload->id),
             ];
         } catch (Throwable $exception) {
             throw UnableToGenerateTemporaryUrl::dueToError($path, $exception);
