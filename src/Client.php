@@ -215,9 +215,9 @@ class Client
         if ($status < 200 || $status >= 300) {
             $body = $response->getBody()->getContents();
 
-            $json = $this->readJsonOrNull($body);
+            $data = $this->readJsonOrNull($body);
 
-            throw Error::fromResponse($json, $status);
+            throw Error::fromResponse($data, $status);
         }
 
         return $response->getBody();
@@ -550,13 +550,13 @@ class Client
 
                 $body = $response->getBody()->getContents();
 
-                $json = $this->readJsonOrNull($body);
+                $data = $this->readJsonOrNull($body);
 
                 if ($status < 200 || $status >= 300) {
-                    throw Error::fromResponse($json, $status);
+                    throw Error::fromResponse($data, $status);
                 }
 
-                return $json ?? [];
+                return $data ?? [];
             })
             ->otherwise(function (Throwable $error) {
                 throw new Error('api_request_failed', $error->getMessage());
