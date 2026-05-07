@@ -1,0 +1,72 @@
+{
+    "name": "devhammed/byteship-php",
+    "description": "PHP client for the Byteship Upload API.",
+    "keywords": [
+        "Hammed Oyedele",
+        "laravel",
+        "byteship-php"
+    ],
+    "homepage": "https://github.com/devhammed/byteship-php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Hammed Oyedele",
+            "email": "itz.harmid@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "graham-campbell/guzzle-factory": "^4.0.2|^5.0|^6.0|^7.0",
+        "guzzlehttp/guzzle": "^6.2|^7.0",
+        "illuminate/contracts": "^11.0||^12.0||^13.0",
+        "league/flysystem": "^3.25.1",
+        "spatie/laravel-package-tools": "^1.16"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.14",
+        "nunomaduro/collision": "^8.8",
+        "larastan/larastan": "^3.0",
+        "orchestra/testbench": "^10.0.0||^9.0.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-arch": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Devhammed\\Byteship\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Devhammed\\Byteship\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": "@composer run prepare",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Devhammed\\Byteship\\ServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

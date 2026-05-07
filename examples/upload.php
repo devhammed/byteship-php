@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+use Devhammed\Byteship\Client;
+use Devhammed\Byteship\Enums\Visibility;
+use Devhammed\Byteship\ValueObjects\UploadProgress;
+use Dotenv\Dotenv;
+
+require __DIR__.'/../vendor/autoload.php';
+
+Dotenv::createImmutable(dirname(__DIR__))->safeLoad();
+
+$client = new Client($_ENV['BYTESHIP_API_KEY']);
+
+$file = str_repeat("Hello Byteship!\n", 128);
+
+$uploaded = $client->upload(
+    $file,
+    filename: 'hello.txt',
+    contentType: 'text/plain',
+    path: 'hello.txt',
+    visibility: Visibility::Public,
+    onProgress: function (UploadProgress $progress) {
+        echo round($progress->percent, 2).'% uploaded'.PHP_EOL;
+    },
+);
+
+echo "#{$uploaded->id} - {$uploaded->filename} - {$uploaded->byteSize} - {$uploaded->url}\n";
+
+echo str_repeat('-', 100).PHP_EOL;
+
+echo $client->downloadFile($uploaded->id);
