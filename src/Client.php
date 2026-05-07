@@ -175,6 +175,7 @@ class Client
         $data = $this
             ->requestJsonAsync('GET', '/files/'.$this->quoteFilePath($filePathOrId))
             ->wait();
+
         $file = $data['file'];
 
         return new GetFileResponse(
