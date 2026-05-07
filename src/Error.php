@@ -18,6 +18,25 @@ class Error extends Exception
         parent::__construct($message);
     }
 
+    public static function fromResponse(?array $details, int $status): self
+    {
+        $error = 'api_request_failed';
+        $message = 'Byteship API request failed with status '.$status;
+
+        if ($details !== null) {
+            $errorCode = $details['error'] ?? null;
+            $detailMessage = $details['detail'] ?? null;
+            if (is_string($errorCode) && $errorCode !== '') {
+                $error = $errorCode;
+            }
+            if (is_string($detailMessage) && $detailMessage !== '') {
+                $message = $detailMessage;
+            }
+        }
+
+        return new Error($error, $message, $details, $status);
+    }
+
     public function getError(): string
     {
         return $this->error;

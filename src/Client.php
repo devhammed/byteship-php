@@ -7,10 +7,7 @@ namespace Devhammed\Byteship;
 use DateTimeImmutable;
 use Devhammed\Byteship\Enums\FileStatus;
 use Devhammed\Byteship\Enums\UploadManyResultStatus;
-use Devhammed\Byteship\Enums\UploadMethod;
-use Devhammed\Byteship\Enums\UploadSessionStatus;
 use Devhammed\Byteship\Enums\Visibility;
-use Devhammed\Byteship\ValueObjects\CompletedUploadSession;
 use Devhammed\Byteship\ValueObjects\CompleteUploadResponse;
 use Devhammed\Byteship\ValueObjects\CreateSignedURLResponse;
 use Devhammed\Byteship\ValueObjects\CreateUploadResponse;
@@ -19,14 +16,12 @@ use Devhammed\Byteship\ValueObjects\DeletedFile;
 use Devhammed\Byteship\ValueObjects\DeleteFileResponse;
 use Devhammed\Byteship\ValueObjects\File;
 use Devhammed\Byteship\ValueObjects\GetFileResponse;
-use Devhammed\Byteship\ValueObjects\PendingFile;
 use Devhammed\Byteship\ValueObjects\SignedURL;
 use Devhammed\Byteship\ValueObjects\UploadedFile;
 use Devhammed\Byteship\ValueObjects\UploadInput;
 use Devhammed\Byteship\ValueObjects\UploadManyProgress;
 use Devhammed\Byteship\ValueObjects\UploadManyResult;
 use Devhammed\Byteship\ValueObjects\UploadProgress;
-use Devhammed\Byteship\ValueObjects\UploadSession;
 use Devhammed\Byteship\ValueObjects\UploadToken;
 use GrahamCampbell\GuzzleFactory\GuzzleFactory;
 use GuzzleHttp\Client as GuzzleClient;
@@ -93,9 +88,11 @@ class Client
             'maxUploadBytes' => $maxUploadBytes,
             'visibility' => $visibility?->value,
         ]);
+
         $data = $this
             ->requestJsonAsync('POST', '/upload-tokens', $payload)
             ->wait();
+
         $token = $data['uploadToken'];
 
         return new CreateUploadTokenResponse(
@@ -154,11 +151,13 @@ class Client
     public function createSignedUrl(string $filePathOrId, ?int $expiresInSeconds = null): CreateSignedURLResponse
     {
         $payload = $this->omitNulls(['expiresInSeconds' => $expiresInSeconds]);
+
         $data = $this->requestJsonAsync(
             'POST',
             '/files/'.$this->quoteFilePath($filePathOrId).'/signed-url',
             $payload,
         )->wait();
+
         $signedUrl = $data['signedUrl'];
 
         return new CreateSignedURLResponse(
@@ -214,9 +213,9 @@ class Client
         $status = $response->getStatusCode();
 
         if ($status < 200 || $status >= 300) {
-            $body = (string) $response->getBody();
+            $body = $response->getBody()->getContents();
 
-            throw $this->errorFromResponse($status, $body);
+            throw Error::fromResponse($this->readJsonOrNull($body), $status);
         }
 
         return $response->getBody();
@@ -437,7 +436,7 @@ class Client
         ]);
 
         return $this->requestJsonAsync('POST', '/uploads', $payload)
-            ->then(fn (array $data) => $this->createUploadResponse($data));
+            ->then(fn (array $data) => CreateUploadResponse::fromArray($data));
     }
 
     protected function createFileUploadAsync(
@@ -457,7 +456,7 @@ class Client
         ]);
 
         return $this->requestJsonAsync('PUT', '/files/'.$this->quoteFilePath($path), $payload)
-            ->then(fn (array $data) => $this->createUploadResponse($data));
+            ->then(fn (array $data) => CreateUploadResponse::fromArray($data));
     }
 
     protected function completeUploadAsync(string $uploadId, string $fileId, string $key): PromiseInterface
@@ -466,7 +465,7 @@ class Client
             'POST',
             '/uploads/'.rawurlencode($uploadId).'/complete',
             ['fileId' => $fileId, 'key' => $key],
-        )->then(fn (array $data) => $this->completeUploadResponse($data));
+        )->then(fn (array $data) => CompleteUploadResponse::fromArray($data));
     }
 
     /**
@@ -550,7 +549,7 @@ class Client
                 $body = $response->getBody()->getContents();
 
                 if ($status < 200 || $status >= 300) {
-                    throw $this->errorFromResponse($status, $body);
+                    throw Error::fromResponse($this->readJsonOrNull($body), $status);
                 }
 
                 return $this->readJsonOrNull($body) ?? [];
@@ -570,73 +569,6 @@ class Client
             'Authorization' => 'Bearer '.$this->authToken,
             'User-Agent' => self::USER_AGENT,
         ];
-    }
-
-    protected function errorFromResponse(int $status, string $body): Error
-    {
-        $details = $this->readJsonOrNull($body);
-        $error = 'api_request_failed';
-        $message = 'Byteship API request failed with status '.$status;
-
-        if ($details !== null) {
-            $errorCode = $details['error'] ?? null;
-            $detailMessage = $details['detail'] ?? null;
-            if (is_string($errorCode) && $errorCode !== '') {
-                $error = $errorCode;
-            }
-            if (is_string($detailMessage) && $detailMessage !== '') {
-                $message = $detailMessage;
-            }
-        }
-
-        return new Error($error, $message, $details, $status);
-    }
-
-    protected function createUploadResponse(array $data): CreateUploadResponse
-    {
-        $file = $data['file'];
-        $upload = $data['upload'];
-
-        return new CreateUploadResponse(
-            new PendingFile(
-                $file['id'],
-                $file['path'],
-                FileStatus::from($file['status']),
-                $file['url'] ?? null,
-            ),
-            new UploadSession(
-                new DateTimeImmutable($upload['expiresAt']),
-                $upload['fileId'],
-                $upload['headers'] ?? [],
-                $upload['id'],
-                $upload['key'],
-                UploadMethod::from($upload['method']),
-                $upload['url'],
-            ),
-        );
-    }
-
-    protected function completeUploadResponse(array $data): CompleteUploadResponse
-    {
-        $file = $data['file'];
-        $upload = $data['upload'];
-
-        return new CompleteUploadResponse(
-            new UploadedFile(
-                $file['byteSize'],
-                $file['etag'] ?? null,
-                $file['filename'],
-                $file['id'],
-                $file['path'],
-                FileStatus::from($file['status']),
-                $file['url'] ?? null,
-                Visibility::from($file['visibility']),
-            ),
-            new CompletedUploadSession(
-                $upload['id'],
-                UploadSessionStatus::from($upload['status']),
-            ),
-        );
     }
 
     protected function resolveFilename(mixed $file, ?string $filename, StreamInterface $stream): string
