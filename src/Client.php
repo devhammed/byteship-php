@@ -215,7 +215,9 @@ class Client
         if ($status < 200 || $status >= 300) {
             $body = $response->getBody()->getContents();
 
-            throw Error::fromResponse($this->readJsonOrNull($body), $status);
+            $json = $this->readJsonOrNull($body);
+
+            throw Error::fromResponse($json, $status);
         }
 
         return $response->getBody();
