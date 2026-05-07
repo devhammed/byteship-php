@@ -300,9 +300,9 @@ class Adapter implements FilesystemAdapter, PublicUrlGenerator, TemporaryUrlGene
         }
     }
 
-    public function getTemporaryUrl(string $path, DateTimeInterface $expiresAt): string
+    public function getTemporaryUrl(string $path, DateTimeInterface $expiresAt, array $options = []): string
     {
-        return $this->temporaryUrl($path, $expiresAt, new Config);
+        return $this->temporaryUrl($path, $expiresAt, new Config($options));
     }
 
     protected function getFileAttributes(string $path): FileAttributes
