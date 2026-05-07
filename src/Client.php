@@ -548,11 +548,13 @@ class Client
 
                 $body = $response->getBody()->getContents();
 
+                $json = $this->readJsonOrNull($body);
+
                 if ($status < 200 || $status >= 300) {
-                    throw Error::fromResponse($this->readJsonOrNull($body), $status);
+                    throw Error::fromResponse($json, $status);
                 }
 
-                return $this->readJsonOrNull($body) ?? [];
+                return $json ?? [];
             })
             ->otherwise(function (Throwable $error) {
                 throw new Error('api_request_failed', $error->getMessage());
