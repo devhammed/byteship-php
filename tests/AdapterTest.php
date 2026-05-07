@@ -157,7 +157,8 @@ it('can read a stream', function () {
 
     $result = Storage::readStream('test.txt');
 
-    expect($result)->toBeResource();
+    expect($result)->toBeResource()
+        ->and(stream_get_contents($result))->toBe('returndata');
 
     fclose($result);
 });
