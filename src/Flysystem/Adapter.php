@@ -305,6 +305,49 @@ class Adapter implements FilesystemAdapter, PublicUrlGenerator, TemporaryUrlGene
         return $this->temporaryUrl($path, $expiresAt, new Config($options));
     }
 
+    public function temporaryUploadUrl(string $path, DateTimeInterface $expiresAt, array $options = []): array
+    {
+        try {
+            $now = new DateTimeImmutable;
+
+            $absolutePath = $this->prefixer->prefixPath($path);
+
+            $visibility = $options['visibility'] ?? $this->visibility;
+
+            $byteSize = $options['byte_size'] ?? 0;
+
+            $folder = dirname($absolutePath);
+
+            $token = $this->client->createUploadToken(
+                folder: $folder !== '.' ? $folder : null,
+                visibility: $visibility,
+                maxUploadBytes: $options['max_upload_bytes'] ?? null,
+                expiresInSeconds: $expiresAt->getTimestamp() - $now->getTimestamp(),
+            );
+
+            $fileUpload = $this->client->createFileUpload(
+                path: $absolutePath,
+                contentType: $options['content_type'] ?? 'application/octet-stream',
+                byteSize: $byteSize,
+                visibility: $visibility,
+            );
+
+            return [
+                'url' => $fileUpload->upload->url,
+                'headers' => $fileUpload->upload->headers,
+                'complete' => [
+                    'url' => $this->client->buildUrl('/uploads/'.rawurlencode($fileUpload->upload->id).'/complete'),
+                    'file_id' => $fileUpload->file->id,
+                    'key' => $fileUpload->upload->key,
+                    'token' => $token->uploadToken->token,
+                    'expires_at' => $token->uploadToken->expiresAt,
+                ],
+            ];
+        } catch (Throwable $exception) {
+            throw UnableToGenerateTemporaryUrl::dueToError($path, $exception);
+        }
+    }
+
     protected function getFileAttributes(string $path): FileAttributes
     {
         $response = $this->client->getFile(

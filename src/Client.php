@@ -351,6 +351,11 @@ class Client
         return array_values(array_filter($results));
     }
 
+    public function buildUrl(string $path): string
+    {
+        return $this->baseUrl.mb_ltrim($path, '/');
+    }
+
     /**
      * @param  string|resource  $file
      * @param  callable(UploadProgress): void|null  $onProgress
@@ -703,10 +708,5 @@ class Client
         }
 
         return is_array($decoded) ? $decoded : null;
-    }
-
-    protected function buildUrl(string $path): string
-    {
-        return $this->baseUrl.mb_ltrim($path, '/');
     }
 }
