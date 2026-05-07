@@ -77,16 +77,16 @@ class Client
     }
 
     public function createUploadToken(
-        ?int $expiresInSeconds = null,
         ?string $folder = null,
-        ?int $maxUploadBytes = null,
         ?Visibility $visibility = null,
+        ?int $maxUploadBytes = null,
+        ?int $expiresInSeconds = null,
     ): CreateUploadTokenResponse {
         $payload = $this->omitNulls([
-            'expiresInSeconds' => $expiresInSeconds,
             'folder' => $folder,
-            'maxUploadBytes' => $maxUploadBytes,
             'visibility' => $visibility,
+            'maxUploadBytes' => $maxUploadBytes,
+            'expiresInSeconds' => $expiresInSeconds,
         ]);
 
         $data = $this
@@ -104,20 +104,20 @@ class Client
     }
 
     public function createUpload(
-        int $byteSize,
-        string $contentType,
         string $filename,
-        ?string $checksumSha256 = null,
+        string $contentType,
+        int $byteSize,
         ?string $folder = null,
+        ?string $checksumSha256 = null,
         ?array $metadata = null,
         ?Visibility $visibility = null,
     ): CreateUploadResponse {
         return $this->createUploadAsync(
-            $byteSize,
-            $contentType,
             $filename,
-            $checksumSha256,
+            $contentType,
+            $byteSize,
             $folder,
+            $checksumSha256,
             $metadata,
             $visibility,
         )->wait();
@@ -125,16 +125,16 @@ class Client
 
     public function createFileUpload(
         string $path,
-        int $byteSize,
         string $contentType,
+        int $byteSize,
         ?string $checksumSha256 = null,
         ?array $metadata = null,
         ?Visibility $visibility = null,
     ): CreateUploadResponse {
         return $this->createFileUploadAsync(
             $path,
-            $byteSize,
             $contentType,
+            $byteSize,
             $checksumSha256,
             $metadata,
             $visibility,
@@ -247,25 +247,25 @@ class Client
      */
     public function upload(
         mixed $file,
+        ?string $path = null,
         ?string $filename = null,
         ?string $contentType = null,
         ?int $byteSize = null,
-        ?string $checksumSha256 = null,
         ?string $folder = null,
+        ?string $checksumSha256 = null,
         ?array $metadata = null,
-        ?string $path = null,
         ?Visibility $visibility = null,
         ?callable $onProgress = null,
     ): UploadedFile {
         return $this->uploadAsync(
             $file,
+            $path,
             $filename,
             $contentType,
             $byteSize,
-            $checksumSha256,
             $folder,
+            $checksumSha256,
             $metadata,
-            $path,
             $visibility,
             $onProgress,
         )->wait();
@@ -311,13 +311,13 @@ class Client
 
                 yield $index => $this->uploadAsync(
                     $item->file,
+                    $this->joinFilePath($pathPrefix, $item->path ?? $item->filename),
                     $item->filename,
                     $item->contentType,
                     $item->byteSize,
-                    $item->checksumSha256,
                     $item->folder ?? $folder,
+                    $item->checksumSha256,
                     $item->metadata ?? $metadata,
-                    $this->joinFilePath($pathPrefix, $item->path ?? $item->filename),
                     $item->visibility ?? $visibility,
                     $progress,
                 );
@@ -357,15 +357,15 @@ class Client
      */
     protected function uploadAsync(
         mixed $file,
-        ?string $filename,
-        ?string $contentType,
-        ?int $byteSize,
-        ?string $checksumSha256,
-        ?string $folder,
-        ?array $metadata,
-        ?string $path,
-        ?Visibility $visibility,
-        ?callable $onProgress,
+        ?string $path = null,
+        ?string $filename = null,
+        ?string $contentType = null,
+        ?int $byteSize = null,
+        ?string $folder = null,
+        ?string $checksumSha256 = null,
+        ?array $metadata = null,
+        ?Visibility $visibility = null,
+        ?callable $onProgress = null,
     ): PromiseInterface {
         if (is_resource($file) && (fstat($file)['mode'] & 010000) != 0) {
             $stream = new PumpStream(function ($length) use ($file) {
@@ -387,18 +387,18 @@ class Client
 
         $createPromise = $path === null
             ? $this->createUploadAsync(
-                $resolvedByteSize,
-                $resolvedContentType,
                 $resolvedFilename,
-                $checksumSha256,
+                $resolvedContentType,
+                $resolvedByteSize,
                 $folder,
+                $checksumSha256,
                 $metadata,
                 $visibility,
             )
             : $this->createFileUploadAsync(
                 $path,
-                $resolvedByteSize,
                 $resolvedContentType,
+                $resolvedByteSize,
                 $checksumSha256,
                 $metadata,
                 $visibility,
@@ -420,20 +420,20 @@ class Client
     }
 
     protected function createUploadAsync(
-        int $byteSize,
-        string $contentType,
         string $filename,
-        ?string $checksumSha256,
-        ?string $folder,
-        ?array $metadata,
-        ?Visibility $visibility,
+        string $contentType,
+        int $byteSize,
+        ?string $folder = null,
+        ?string $checksumSha256 = null,
+        ?array $metadata = null,
+        ?Visibility $visibility = null,
     ): PromiseInterface {
         $payload = $this->omitNulls([
-            'byteSize' => $byteSize,
-            'checksumSha256' => $checksumSha256,
-            'contentType' => $contentType,
             'filename' => $filename,
+            'contentType' => $contentType,
+            'byteSize' => $byteSize,
             'folder' => $folder,
+            'checksumSha256' => $checksumSha256,
             'metadata' => $metadata,
             'visibility' => $visibility,
         ]);
@@ -444,16 +444,16 @@ class Client
 
     protected function createFileUploadAsync(
         string $path,
-        int $byteSize,
         string $contentType,
-        ?string $checksumSha256,
-        ?array $metadata,
-        ?Visibility $visibility,
+        int $byteSize,
+        ?string $checksumSha256 = null,
+        ?array $metadata = null,
+        ?Visibility $visibility = null,
     ): PromiseInterface {
         $payload = $this->omitNulls([
+            'contentType' => $contentType,
             'byteSize' => $byteSize,
             'checksumSha256' => $checksumSha256,
-            'contentType' => $contentType,
             'metadata' => $metadata,
             'visibility' => $visibility,
         ]);

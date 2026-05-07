@@ -17,9 +17,9 @@ $file = fopen(__DIR__.'/devhammed.png', 'rb');
 
 $uploaded = $client->upload(
     $file,
+    path: 'upload-binary.png',
     filename: 'upload-binary.png',
     contentType: 'image/png',
-    path: 'upload-binary.png',
     visibility: Visibility::Public,
     onProgress: function (UploadProgress $progress) {
         echo 'Upload binary: '.round($progress->percent, 2).'% uploaded'.PHP_EOL;

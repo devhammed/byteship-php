@@ -42,7 +42,10 @@ it('creates an upload token', function (): void {
     $history = [];
     $client = makeClient($mock, $history);
 
-    $response = $client->createUploadToken(expiresInSeconds: 3600, folder: 'invoices', maxUploadBytes: 123, visibility: Visibility::Private);
+    $response = $client->createUploadToken(
+        folder: 'invoices',
+        maxUploadBytes: 123,
+    );
 
     expect($response->uploadToken->token)->toBe('token-123')
         ->and($history)->toHaveCount(1);
@@ -71,7 +74,12 @@ it('creates an upload', function (): void {
     $history = [];
     $client = makeClient($mock, $history);
 
-    $response = $client->createUpload(10, 'text/plain', 'file.txt', visibility: Visibility::Public);
+    $response = $client->createUpload(
+        filename: 'file.txt',
+        contentType: 'text/plain',
+        byteSize: 10,
+        visibility: Visibility::Public
+    );
 
     expect($response->file->status)->toBe(FileStatus::Pending)
         ->and($response->upload->method)->toBe(UploadMethod::Single)
@@ -101,7 +109,11 @@ it('creates a file upload', function (): void {
     $history = [];
     $client = makeClient($mock, $history);
 
-    $response = $client->createFileUpload('docs/report.pdf', 10, 'application/pdf');
+    $response = $client->createFileUpload(
+        path: 'docs/report.pdf',
+        contentType: 'application/pdf',
+        byteSize: 10,
+    );
 
     expect($history)->toHaveCount(1)
         ->and($response->file->id)->toBe('file_2');
