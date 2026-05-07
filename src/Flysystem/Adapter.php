@@ -316,6 +316,10 @@ class Adapter implements FilesystemAdapter, PublicUrlGenerator, TemporaryUrlGene
 
             $byteSize = $options['byte_size'] ?? 0;
 
+            if ($byteSize <= 0) {
+                throw new RuntimeException('You must provide `byte_size` in the options and it must be a positive integer.');
+            }
+
             $folder = dirname($absolutePath);
 
             $token = $this->client->createUploadToken(
@@ -333,15 +337,13 @@ class Adapter implements FilesystemAdapter, PublicUrlGenerator, TemporaryUrlGene
             );
 
             return [
+                'file_id' => $fileUpload->file->id,
                 'url' => $fileUpload->upload->url,
                 'headers' => $fileUpload->upload->headers,
-                'complete' => [
-                    'url' => $this->client->buildCompletionUrl($fileUpload->upload->id),
-                    'file_id' => $fileUpload->file->id,
-                    'key' => $fileUpload->upload->key,
-                    'token' => $token->uploadToken->token,
-                    'expires_at' => $token->uploadToken->expiresAt,
-                ],
+                'upload_key' => $fileUpload->upload->key,
+                'upload_token' => $token->uploadToken->token,
+                'expires_at' => $token->uploadToken->expiresAt,
+                'complete_url' => $this->client->buildCompletionUrl($fileUpload->upload->id),
             ];
         } catch (Throwable $exception) {
             throw UnableToGenerateTemporaryUrl::dueToError($path, $exception);

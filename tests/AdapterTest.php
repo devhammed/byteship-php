@@ -364,15 +364,14 @@ it('can get temporary upload URL', function () {
             ),
         ));
 
-    $response = Storage::temporaryUploadUrl('test.txt', now()->addHour());
+    $response = Storage::temporaryUploadUrl('test.txt', now()->addHour(), ['byte_size' => 1024]);
 
     expect($response)->toBeArray()
+        ->and($response['file_id'])->toBe('1234567')
         ->and($response['url'])->toBe('https://r2.cloudfareapis.com/f/1234567/d34db33f/test.txt')
+        ->and($response['complete_url'])->toBe('https://cdn.byteship.dev/f/12345/test.txt/upload/complete')
         ->and($response['headers'])->toBe(['content-type' => 'text/plain'])
-        ->and($response['complete'])->toBeArray()
-        ->and($response['complete']['url'])->toBe('https://cdn.byteship.dev/f/12345/test.txt/upload/complete')
-        ->and($response['complete']['file_id'])->toBe('1234567')
-        ->and($response['complete']['key'])->toBe('d34db33f')
-        ->and($response['complete']['token'])->toBe('sbut_12345678')
-        ->and($response['complete']['expires_at'])->toBeInstanceOf(DateTimeImmutable::class);
+        ->and($response['upload_key'])->toBe('d34db33f')
+        ->and($response['upload_token'])->toBe('sbut_12345678')
+        ->and($response['expires_at'])->toBeInstanceOf(DateTimeImmutable::class);
 });
