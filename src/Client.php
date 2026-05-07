@@ -86,7 +86,7 @@ class Client
             'expiresInSeconds' => $expiresInSeconds,
             'folder' => $folder,
             'maxUploadBytes' => $maxUploadBytes,
-            'visibility' => $visibility?->value,
+            'visibility' => $visibility,
         ]);
 
         $data = $this
@@ -435,7 +435,7 @@ class Client
             'filename' => $filename,
             'folder' => $folder,
             'metadata' => $metadata,
-            'visibility' => $visibility?->value,
+            'visibility' => $visibility,
         ]);
 
         return $this->requestJsonAsync('POST', '/uploads', $payload)
@@ -455,7 +455,7 @@ class Client
             'checksumSha256' => $checksumSha256,
             'contentType' => $contentType,
             'metadata' => $metadata,
-            'visibility' => $visibility?->value,
+            'visibility' => $visibility,
         ]);
 
         return $this->requestJsonAsync('PUT', '/files/'.$this->quoteFilePath($path), $payload)
