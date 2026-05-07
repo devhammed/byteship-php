@@ -82,7 +82,7 @@ class Client
         ?int $maxUploadBytes = null,
         ?int $expiresInSeconds = null,
     ): CreateUploadTokenResponse {
-        $payload = $this->omitNulls([
+        $payload = $this->omitEmpty([
             'folder' => $folder,
             'visibility' => $visibility,
             'maxUploadBytes' => $maxUploadBytes,
@@ -150,7 +150,7 @@ class Client
 
     public function createSignedUrl(string $filePathOrId, ?int $expiresInSeconds = null): CreateSignedURLResponse
     {
-        $payload = $this->omitNulls(['expiresInSeconds' => $expiresInSeconds]);
+        $payload = $this->omitEmpty(['expiresInSeconds' => $expiresInSeconds]);
 
         $data = $this->requestJsonAsync(
             'POST',
@@ -428,7 +428,7 @@ class Client
         ?array $metadata = null,
         ?Visibility $visibility = null,
     ): PromiseInterface {
-        $payload = $this->omitNulls([
+        $payload = $this->omitEmpty([
             'filename' => $filename,
             'contentType' => $contentType,
             'byteSize' => $byteSize,
@@ -450,7 +450,7 @@ class Client
         ?array $metadata = null,
         ?Visibility $visibility = null,
     ): PromiseInterface {
-        $payload = $this->omitNulls([
+        $payload = $this->omitEmpty([
             'contentType' => $contentType,
             'byteSize' => $byteSize,
             'checksumSha256' => $checksumSha256,
@@ -654,7 +654,7 @@ class Client
      * @param  array<string, mixed>  $values
      * @return array<string, mixed>
      */
-    protected function omitNulls(array $values): array
+    protected function omitEmpty(array $values): array
     {
         return array_filter($values, fn ($value) => $value !== null && $value !== [] && $value !== '');
     }
