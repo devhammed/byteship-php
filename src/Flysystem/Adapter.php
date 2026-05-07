@@ -321,7 +321,7 @@ class Adapter implements FilesystemAdapter, PublicUrlGenerator, TemporaryUrlGene
             $token = $this->client->createUploadToken(
                 folder: $folder !== '.' ? $folder : null,
                 visibility: $visibility,
-                maxUploadBytes: $options['max_upload_bytes'] ?? null,
+                maxUploadBytes: $byteSize,
                 expiresInSeconds: $expiresAt->getTimestamp() - $now->getTimestamp(),
             );
 
