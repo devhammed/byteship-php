@@ -86,7 +86,7 @@ class Client
         ?int $maxUploadBytes = null,
         ?int $expiresInSeconds = null,
     ): CreateUploadTokenResponse {
-        $payload = $this->omitEmpty([
+        $payload = array_filter([
             'folder' => $folder,
             'visibility' => $visibility,
             'maxUploadBytes' => $maxUploadBytes,
@@ -161,7 +161,7 @@ class Client
 
     public function createSignedUrl(string $filePathOrId, ?int $expiresInSeconds = null): CreateSignedURLResponse
     {
-        $payload = $this->omitEmpty(['expiresInSeconds' => $expiresInSeconds]);
+        $payload = array_filter(['expiresInSeconds' => $expiresInSeconds]);
 
         $data = $this->requestJsonAsync(
             'POST',
@@ -456,7 +456,7 @@ class Client
         ?array $metadata = null,
         ?Visibility $visibility = null,
     ): PromiseInterface {
-        $payload = $this->omitEmpty([
+        $payload = array_filter([
             'filename' => $filename,
             'contentType' => $contentType,
             'byteSize' => $byteSize,
@@ -478,7 +478,7 @@ class Client
         ?array $metadata = null,
         ?Visibility $visibility = null,
     ): PromiseInterface {
-        $payload = $this->omitEmpty([
+        $payload = array_filter([
             'contentType' => $contentType,
             'byteSize' => $byteSize,
             'checksumSha256' => $checksumSha256,
@@ -687,15 +687,6 @@ class Client
         return $remaining;
     }
 
-    /**
-     * @param  array<string, mixed>  $values
-     * @return array<string, mixed>
-     */
-    protected function omitEmpty(array $values): array
-    {
-        return array_filter($values, fn ($value) => $value !== null && $value !== [] && $value !== '');
-    }
-
     protected function quoteFilePath(string $path): string
     {
         $segments = array_filter(explode('/', mb_trim($path, '/')));
@@ -707,7 +698,7 @@ class Client
 
     protected function joinFilePath(?string $prefix, ?string $filename): ?string
     {
-        if ($prefix === null || $prefix === '') {
+        if (empty($prefix)) {
             return null;
         }
 
@@ -729,7 +720,7 @@ class Client
      */
     protected function readJsonOrNull(string $body): ?array
     {
-        if ($body === '') {
+        if (empty($body)) {
             return null;
         }
 
