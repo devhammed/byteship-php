@@ -118,9 +118,9 @@ class Adapter implements FilesystemAdapter, PublicUrlGenerator, TemporaryUrlGene
     public function read(string $path): string
     {
         try {
-            $contents = $this->client->downloadFile($this->prefixer->prefixPath($path));
+            $stream = $this->client->downloadFile($this->prefixer->prefixPath($path));
 
-            return $contents->getContents();
+            return $stream->getContents();
         } catch (Throwable $exception) {
             throw UnableToReadFile::fromLocation($path, $exception->getMessage(), $exception);
         }
@@ -132,9 +132,9 @@ class Adapter implements FilesystemAdapter, PublicUrlGenerator, TemporaryUrlGene
     public function readStream(string $path)
     {
         try {
-            $contents = $this->client->downloadFile($this->prefixer->prefixPath($path));
+            $stream = $this->client->downloadFile($this->prefixer->prefixPath($path));
 
-            return $contents->detach();
+            return $stream->detach();
         } catch (Throwable $exception) {
             throw UnableToReadFile::fromLocation($path, $exception->getMessage(), $exception);
         }
