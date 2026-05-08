@@ -8,7 +8,10 @@ use Devhammed\Byteship\Enums\Visibility;
 
 final readonly class UploadInput
 {
-    /** @param array<string, mixed>|null $metadata */
+    /**
+     * @param  resource|string  $file
+     * @param  array<string, mixed>|null  $metadata
+     */
     public function __construct(
         public mixed $file,
         public ?string $filename = null,
