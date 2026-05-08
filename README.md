@@ -195,7 +195,7 @@ $created = $byteship->createFileUpload(
     byteSize: $byteSize,
 );
 
-if ($created->upload->url === null) {
+if (empty($created->upload->url)) {
     throw new RuntimeException('Upload URL missing');
 }
 
