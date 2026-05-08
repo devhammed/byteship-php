@@ -131,7 +131,10 @@ $fileResponse = $byteship->getFile('uploads/photo.jpg');
 
 echo 'File Status: ' . $fileResponse->file->status;
 
-$signedResponse = $byteship->createSignedUrl($fileResponse->file->path, expiresInSeconds: 10 * 60);
+$signedResponse = $byteship->createSignedUrl(
+    $fileResponse->file->path,
+    expiresInSeconds: 10 * 60,
+);
 
 echo 'Signed URL: ' . $signedResponse->signedUrl->url;
 
