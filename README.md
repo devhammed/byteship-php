@@ -65,7 +65,7 @@ $uploaded = $byteship->upload(
     path: 'uploads/photo.jpg',
     visibility: Visibility::Public,
     metadata: [
-        'customer_id' => 'cus_123',
+        'user_id' => '123',
     ],
     onProgress: function (UploadProgress $progress) {
         echo round($progress->percent) . '% uploaded';
@@ -115,6 +115,29 @@ $uploaded = array_map(
     fn($item) => $item->result,
     array_filter($results, fn($item) => $item->status === UploadManyResultStatus::Fulfilled),
 );
+```
+
+### File Methods
+
+Server clients can read file metadata, create temporary URLs for private files, and delete stored files when the
+credential has the required scope.
+
+```php
+use Devhammed\Byteship\Client;
+
+$byteship = new Client(apiKey: $_ENV['BYTESHIP_API_KEY']);
+
+$fileResponse = $byteship->getFile('uploads/photo.jpg');
+
+echo 'File Status: ' . $fileResponse->file->status;
+
+$signedResponse = $byteship->createSignedUrl($fileResponse->file->path, expiresInSeconds: 10 * 60);
+
+echo 'Signed URL: ' . $signedResponse->signedUrl->url;
+
+$deleted = $byteship->deleteFile($fileResponse->file->path);
+
+echo 'File Status: ' . $deleted->file->status;
 ```
 
 ### Errors
