@@ -68,7 +68,7 @@ $uploaded = $byteship->upload(
         'user_id' => '123',
     ],
     onProgress: function (UploadProgress $progress) {
-        echo round($progress->percent) . '% uploaded';
+        echo round($progress->percent).'% uploaded';
     },
 );
 
@@ -107,7 +107,7 @@ $results = $byteship->uploadMany(
         'user_id' => '123',
     ],
     onFileProgress: function (UploadManyProgress $progress) {
-        echo '#'. $progress->index .': ' .round($progress->percent) . '% uploaded';
+        echo '#'.$progress->index.': '.round($progress->percent).'% uploaded';
     },
 );
 
@@ -129,24 +129,24 @@ $byteship = new Client(apiKey: $_ENV['BYTESHIP_API_KEY']);
 
 $fileResponse = $byteship->getFile('uploads/photo.jpg');
 
-echo 'File Status: ' . $fileResponse->file->status;
+echo 'File Status: '.$fileResponse->file->status;
 
 $signedResponse = $byteship->createSignedUrl(
     $fileResponse->file->path,
     expiresInSeconds: 10 * 60,
 );
 
-echo 'Signed URL: ' . $signedResponse->signedUrl->url;
+echo 'Signed URL: '.$signedResponse->signedUrl->url;
 
 $stream = $byteship->downloadFile($fileResponse->file->path);
 
 file_put_contents('photo.jpg', $stream);
 
-echo 'Download Size: ' . filesize('photo.jpg');
+echo 'Download Size: '.filesize('photo.jpg');
 
 $deleted = $byteship->deleteFile($fileResponse->file->path);
 
-echo 'File Status: ' . $deleted->file->status;
+echo 'File Status: '.$deleted->file->status;
 ```
 
 ### Errors
