@@ -119,8 +119,8 @@ $uploaded = array_map(
 
 ### File Methods
 
-Server clients can read file metadata, create temporary URLs for private files, and delete stored files when the
-credential has the required scope.
+Server clients can read file metadata, create temporary URLs for private files, download file, and delete stored files
+when the credential has the required scope.
 
 ```php
 use Devhammed\Byteship\Client;
@@ -134,6 +134,12 @@ echo 'File Status: ' . $fileResponse->file->status;
 $signedResponse = $byteship->createSignedUrl($fileResponse->file->path, expiresInSeconds: 10 * 60);
 
 echo 'Signed URL: ' . $signedResponse->signedUrl->url;
+
+$stream = $byteship->downloadFile($fileResponse->file->path);
+
+file_put_contents('photo.jpg', $stream);
+
+echo 'Download Size: ' . filesize('photo.jpg');
 
 $deleted = $byteship->deleteFile($fileResponse->file->path);
 
