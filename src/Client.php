@@ -43,6 +43,10 @@ class Client
 
     public const string USER_AGENT = 'byteship-php/0.1.1';
 
+    public const float DEFAULT_TIMEOUT = 60.0;
+
+    public const int MULTIPART_SIZE = 16 * 1024 * 1024;
+
     protected string $authToken;
 
     protected ClientInterface $client;
@@ -59,11 +63,11 @@ class Client
         ?string $uploadToken = null,
         ?ClientInterface $client = null,
         string $baseUrl = self::DEFAULT_BASE_URL,
-        float $timeout = 60,
+        float $timeout = self::DEFAULT_TIMEOUT,
     ) {
         $authToken = $apiKey ?? $uploadToken;
 
-        if ($authToken === null || $authToken === '') {
+        if (empty($authToken)) {
             throw new Error(
                 'missing_auth_token',
                 'Byteship API key or upload token is required.',
