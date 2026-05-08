@@ -5,6 +5,25 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/devhammed/byteship-php.svg?style=flat-square)](https://packagist.org/packages/devhammed/byteship-php)
 [![Laravel Compatibility](https://badge.laravel.cloud/badge/devhammed/byteship-php)](https://packagist.org/packages/devhammed/byteship-php)
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Usage](#usage)
+    - [Create a Client](#create-a-client)
+        - [Server client](#server-client)
+        - [Upload client](#upload-client)
+    - [Upload a File](#upload-a-file)
+    - [Multiple Files](#multiple-files)
+    - [File Methods](#file-methods)
+    - [Manual Flow](#manual-flow)
+    - [Errors](#errors)
+    - [Laravel](#laravel)
+- [Testing](#testing)
+- [Changelog](#changelog)
+- [Credits](#credits)
+- [License](#license)
+
 ## Introduction
 
 PHP client & Laravel storage adapter for [Byteship](https://byteship.dev).
