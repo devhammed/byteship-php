@@ -615,7 +615,7 @@ class Client
 
     protected function resolveFilename(mixed $file, ?string $filename, StreamInterface $stream): string
     {
-        if ($filename !== null && $filename !== '') {
+        if (! empty($filename)) {
             return $filename;
         }
 
@@ -629,7 +629,7 @@ class Client
 
         $uri = $stream->getMetadata('uri');
 
-        if (is_string($uri) && $uri !== '') {
+        if (is_string($uri) && ! empty($uri)) {
             return basename($uri);
         }
 
@@ -638,7 +638,7 @@ class Client
 
     protected function resolveContentType(string $filename, ?string $contentType): string
     {
-        if ($contentType !== null && $contentType !== '') {
+        if (! empty($contentType)) {
             return $contentType;
         }
 
