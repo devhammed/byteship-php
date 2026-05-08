@@ -11,7 +11,7 @@ require __DIR__.'/../vendor/autoload.php';
 
 Dotenv::createImmutable(dirname(__DIR__))->safeLoad();
 
-$client = new Client($_ENV['BYTESHIP_API_KEY']);
+$client = new Client(apiKey: $_ENV['BYTESHIP_API_KEY']);
 
 $file = fopen(__DIR__.'/devhammed.png', 'rb');
 

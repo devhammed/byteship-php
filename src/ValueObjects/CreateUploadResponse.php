@@ -21,20 +21,20 @@ final readonly class CreateUploadResponse
         $upload = $data['upload'];
 
         return new CreateUploadResponse(
-            new PendingFile(
-                $file['id'],
-                $file['path'],
-                FileStatus::from($file['status']),
-                $file['url'] ?? null,
+            file: new PendingFile(
+                id: $file['id'],
+                path: $file['path'],
+                status: FileStatus::from($file['status']),
+                url: $file['url'] ?? null,
             ),
-            new UploadSession(
-                $upload['id'],
-                $upload['fileId'],
-                $upload['key'],
-                $upload['headers'] ?? [],
-                UploadMethod::from($upload['method']),
-                $upload['url'],
-                new DateTimeImmutable($upload['expiresAt']),
+            upload: new UploadSession(
+                id: $upload['id'],
+                fileId: $upload['fileId'],
+                key: $upload['key'],
+                headers: $upload['headers'] ?? [],
+                method: UploadMethod::from($upload['method']),
+                url: $upload['url'],
+                expiresAt: new DateTimeImmutable($upload['expiresAt']),
             ),
         );
     }

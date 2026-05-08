@@ -23,13 +23,13 @@ class ServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         Storage::extend('byteship', function (Application $app, array $config) {
-            $client = new Client($config['api_key']);
+            $client = new Client(apiKey: $config['api_key']);
 
             $adapter = new Adapter(
-                $client,
-                $config['visibility'] ?? 'public',
-                $config['prefix'] ?? '',
-                $config['directory_separator'] ?? '/',
+                client: $client,
+                visibility: $config['visibility'] ?? 'public',
+                prefix: $config['prefix'] ?? '',
+                separator: $config['directory_separator'] ?? '/',
             );
 
             return new FilesystemAdapter(

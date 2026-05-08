@@ -22,36 +22,51 @@ at the [Byteship Docs](https://byteship.dev/docs).
 
 ### Create a Client
 
+Create the client with a full project API key only on trusted server code. Browser code should use a short-lived upload
+token minted by your backend.
+
+#### Server client
+
 ```php
 use Devhammed\Byteship\Client;
 
-$client = new Client($_ENV['BYTESHIP_API_KEY']);
-
-$token = $client->createUploadToken(
-    folder: "uploads",
-    maxUploadBytes: 10 * 1024 * 1024,
-);
-
-echo $token->uploadToken->token;
+$byteship = new Client(apiKey: $_ENV['BYTESHIP_API_KEY']);
 ```
 
+#### Upload client
+
+```php
+use Devhammed\Byteship\Client;
+
+$byteship = new Client(uploadToken: 'bsut_...');
+```
+
+> Keep API keys server-side!
+>
+> Never ship a `bship_...` project API key to the browser. Use `createUploadToken` on your server and pass the returned
+> `bsut_...` token to frontend code.
+
 ### Upload a File
+
+Use `upload` when you want the SDK to create the upload session, send the bytes to storage, complete the upload, and
+return the ready file.
 
 ```php
 use Devhammed\Byteship\Client;
 use Devhammed\Byteship\Enums\Visibility;
 use Devhammed\Byteship\ValueObjects\UploadProgress;
 
-$client = new Client($_ENV['BYTESHIP_API_KEY']);
+$byteship = new Client(apiKey: $_ENV['BYTESHIP_API_KEY']);
 
 $file = fopen('photo.jpg', 'rb');
 
-$uploaded = $client->upload(
+$uploaded = $byteship->upload(
     $file,
-    filename: "photo.jpg",
-    contentType: "image/jpeg",
-    path: "uploads/photo.jpg",
+    path: 'uploads/photo.jpg',
     visibility: Visibility::Public,
+    metadata: [
+        'customer_id' => 'cus_123',
+    ],
     onProgress: function (UploadProgress $progress) {
         echo round($progress->percent) . '% uploaded';
     },
@@ -60,25 +75,67 @@ $uploaded = $client->upload(
 echo "#{$uploaded->id} - {$uploaded->url}";
 ```
 
+### Multiple Files
+
+Use `uploadMany` for batches. Each result keeps the original file, a status, and either the uploaded file or a
+`Byteship\Error`.
+
+```php
+use Devhammed\Byteship\Client;
+use Devhammed\Byteship\Enums\Visibility;
+use Devhammed\Byteship\Enums\UploadManyResultStatus;
+use Devhammed\Byteship\ValueObjects\UploadManyProgress;
+use Devhammed\Byteship\ValueObjects\UploadInput;
+
+$byteship = new Client(apiKey: $_ENV['BYTESHIP_API_KEY']);
+
+$files = [
+    new UploadInput(fopen('photo-1.jpg', 'rb')),
+    new UploadInput(fopen('photo-2.jpg', 'rb')),
+    new UploadInput(fopen('photo-3.jpg', 'rb')),
+    new UploadInput(fopen('photo-4.jpg', 'rb')),
+    new UploadInput(fopen('photo-5.jpg', 'rb')),
+    new UploadInput(fopen('photo-6.jpg', 'rb')),
+];
+
+$results = $byteship->uploadMany(
+    $files,
+    concurrency: 3,
+    pathPrefix: 'gallery',
+    visibility: Visibility::Public,
+    metadata: [
+        'customer_id' => 'cus_123',
+    ],
+    onFileProgress: function (UploadManyProgress $progress) {
+        echo '#'. $progress->index .': ' .round($progress->percent) . '% uploaded';
+    },
+);
+
+$uploaded = array_map(
+    fn($item) => $item->result,
+    array_filter($results, fn($item) => $item->status === UploadManyResultStatus::Fulfilled),
+);
+```
+
 ### Errors
+
+Every SDK API request throws `Byteship\Error` for non-2xx responses.
 
 ```php
 use Devhammed\Byteship\Client;
 use Devhammed\Byteship\Error;
 
-$client = new Client($_ENV['BYTESHIP_API_KEY']);
+$byteship = new Client(apiKey: $_ENV['BYTESHIP_API_KEY']);
 
 try {
-    $client->createUploadToken(
-        folder: "uploads",
+    $byteship->createUploadToken(
+        folder: 'uploads',
         maxUploadBytes: 10 * 1024 * 1024,
     );
 } catch (Error $error) {
     echo "Error creating upload token: {$error->getError()} - {$error->getStatus()} - {$error->getMessage()}";
 }
 ```
-
-You can check this [folder](./examples) for more usage examples.
 
 ### Laravel
 

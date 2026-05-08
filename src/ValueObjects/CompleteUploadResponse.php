@@ -21,19 +21,19 @@ final readonly class CompleteUploadResponse
         $upload = $data['upload'];
 
         return new CompleteUploadResponse(
-            new UploadedFile(
-                $file['id'],
-                $file['filename'],
-                $file['path'],
-                $file['byteSize'],
-                $file['etag'] ?? null,
-                FileStatus::from($file['status']),
-                $file['url'] ?? null,
-                Visibility::from($file['visibility']),
+            file: new UploadedFile(
+                id: $file['id'],
+                filename: $file['filename'],
+                path: $file['path'],
+                byteSize: $file['byteSize'],
+                etag: $file['etag'] ?? null,
+                status: FileStatus::from($file['status']),
+                url: $file['url'] ?? null,
+                visibility: Visibility::from($file['visibility']),
             ),
-            new CompletedUploadSession(
-                $upload['id'],
-                UploadSessionStatus::from($upload['status']),
+            upload: new CompletedUploadSession(
+                id: $upload['id'],
+                status: UploadSessionStatus::from($upload['status']),
             ),
         );
     }

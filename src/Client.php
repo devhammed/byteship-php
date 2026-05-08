@@ -100,9 +100,9 @@ class Client
         $token = $data['uploadToken'];
 
         return new CreateUploadTokenResponse(
-            new UploadToken(
-                $token['token'],
-                new DateTimeImmutable($token['expiresAt']),
+            uploadToken: new UploadToken(
+                token: $token['token'],
+                expiresAt: new DateTimeImmutable($token['expiresAt']),
             ),
         );
     }
@@ -172,11 +172,11 @@ class Client
         $signedUrl = $data['signedUrl'];
 
         return new CreateSignedURLResponse(
-            new SignedURL(
-                $signedUrl['fileId'],
-                $signedUrl['path'] ?? null,
-                $signedUrl['url'],
-                new DateTimeImmutable($signedUrl['expiresAt']),
+            signedUrl: new SignedURL(
+                fileId: $signedUrl['fileId'],
+                path: $signedUrl['path'] ?? null,
+                url: $signedUrl['url'],
+                expiresAt: new DateTimeImmutable($signedUrl['expiresAt']),
             ),
         );
     }
@@ -190,17 +190,17 @@ class Client
         $file = $data['file'];
 
         return new GetFileResponse(
-            new File(
-                $file['id'],
-                $file['filename'],
-                $file['path'],
-                $file['byteSize'],
-                $file['contentType'],
-                $file['metadata'] ?? [],
-                FileStatus::from($file['status']),
-                $file['url'] ?? null,
-                Visibility::from($file['visibility']),
-                new DateTimeImmutable($file['createdAt']),
+            file: new File(
+                id: $file['id'],
+                filename: $file['filename'],
+                path: $file['path'],
+                byteSize: $file['byteSize'],
+                contentType: $file['contentType'],
+                metadata: $file['metadata'] ?? [],
+                status: FileStatus::from($file['status']),
+                url: $file['url'] ?? null,
+                visibility: Visibility::from($file['visibility']),
+                createdAt: new DateTimeImmutable($file['createdAt']),
             ),
         );
     }
@@ -244,10 +244,10 @@ class Client
         $file = $data['file'];
 
         return new DeleteFileResponse(
-            new DeletedFile(
-                $file['id'],
-                $file['path'] ?? null,
-                FileStatus::from($file['status']),
+            file: new DeletedFile(
+                id: $file['id'],
+                path: $file['path'] ?? null,
+                status: FileStatus::from($file['status']),
             ),
         );
     }
@@ -311,11 +311,11 @@ class Client
                 if ($onFileProgress !== null) {
                     $progress = function (UploadProgress $progressValue) use ($item, $index, $onFileProgress): void {
                         $onFileProgress(new UploadManyProgress(
-                            $index,
-                            $item,
-                            $progressValue->loaded,
-                            $progressValue->percent,
-                            $progressValue->total,
+                            index: $index,
+                            file: $item,
+                            loaded: $progressValue->loaded,
+                            percent: $progressValue->percent,
+                            total: $progressValue->total,
                         ));
                     };
                 }
@@ -339,20 +339,20 @@ class Client
             'concurrency' => max(1, min($concurrency, count($fileList))),
             'fulfilled' => function (UploadedFile $uploaded, int $index) use ($fileList, &$results): void {
                 $results[$index] = new UploadManyResult(
-                    $fileList[$index],
-                    UploadManyResultStatus::Fulfilled,
-                    null,
-                    $uploaded,
+                    input: $fileList[$index],
+                    status: UploadManyResultStatus::Fulfilled,
+                    error: null,
+                    file: $uploaded,
                 );
             },
             'rejected' => function (mixed $reason, int $index) use ($fileList, &$results): void {
                 $error = $reason instanceof Throwable ? $reason : new Error('upload_failed', 'Upload failed.');
 
                 $results[$index] = new UploadManyResult(
-                    $fileList[$index],
-                    UploadManyResultStatus::Rejected,
-                    $error,
-                    null,
+                    input: $fileList[$index],
+                    status: UploadManyResultStatus::Rejected,
+                    error: $error,
+                    file: null,
                 );
             },
         ]);
@@ -529,9 +529,9 @@ class Client
         if ($onProgress !== null) {
             $progress = function (int $downloadTotal, int $downloaded, int $uploadTotal, int $uploaded) use ($byteSize, $onProgress): void {
                 $onProgress(new UploadProgress(
-                    $uploaded,
-                    $byteSize <= 0 ? 0.0 : min(100.0, ($uploaded / $byteSize) * 100.0),
-                    $byteSize,
+                    loaded: $uploaded,
+                    percent: $byteSize <= 0 ? 0.0 : min(100.0, ($uploaded / $byteSize) * 100.0),
+                    total: $byteSize,
                 ));
             };
         }
@@ -559,7 +559,11 @@ class Client
                 }
 
                 if ($onProgress !== null) {
-                    $onProgress(new UploadProgress($byteSize, 100.0, $byteSize));
+                    $onProgress(new UploadProgress(
+                        loaded: $byteSize,
+                        percent: 100.0,
+                        total: $byteSize,
+                    ));
                 }
 
                 return true;
