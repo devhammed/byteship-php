@@ -149,6 +149,50 @@ $deleted = $byteship->deleteFile($fileResponse->file->path);
 echo 'File Status: '.$deleted->file->status;
 ```
 
+### Manual Flow
+
+Use the lower-level methods when you need to own one part of the flow, such as sending the file bytes with a custom
+upload client.
+
+```php
+use Devhammed\Byteship\Client;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Psr7\MimeType;
+use GuzzleHttp\Psr7\Utils;
+use RuntimeException;
+
+$byteship = new Client(apiKey: $_ENV['BYTESHIP_API_KEY']);
+
+$filePath = 'manual/invoice.pdf';
+$stream = Utils::streamFor(fopen($filePath, 'rb'));
+$byteSize = $stream->getSize() ?? filesize($filePath);
+$contentType = MimeType::fromFilename($filePath) ?? 'application/octet-stream';
+
+$created = $byteship->createFileUpload(
+    path: $filePath,
+    contentType: $contentType,
+    byteSize: $byteSize,
+);
+
+if ($created->upload->url === null) {
+    throw new RuntimeException('Upload URL missing');
+}
+
+$http = new GuzzleClient();
+
+$http->request('PUT', $created->upload->url, [
+    'headers' => $created->upload->headers,
+    'body' => $stream,
+]);
+
+$completed = $byteship->completePathUpload(
+    path: $created->file->path,
+    uploadId: $created->upload->id,
+);
+
+echo $completed->file->status;
+```
+
 ### Errors
 
 Every SDK API request throws `Byteship\Error` for non-2xx responses.
