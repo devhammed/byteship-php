@@ -104,7 +104,7 @@ $results = $byteship->uploadMany(
     pathPrefix: 'gallery',
     visibility: Visibility::Public,
     metadata: [
-        'customer_id' => 'cus_123',
+        'user_id' => '123',
     ],
     onFileProgress: function (UploadManyProgress $progress) {
         echo '#'. $progress->index .': ' .round($progress->percent) . '% uploaded';
