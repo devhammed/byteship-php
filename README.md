@@ -5,7 +5,9 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/devhammed/byteship-php.svg?style=flat-square)](https://packagist.org/packages/devhammed/byteship-php)
 [![Laravel Compatibility](https://badge.laravel.cloud/badge/devhammed/byteship-php)](https://packagist.org/packages/devhammed/byteship-php)
 
-PHP client for the Byteship Upload API.
+## Introduction
+
+PHP client & Laravel storage adapter for [Byteship](https://byteship.dev).
 
 ## Installation
 
