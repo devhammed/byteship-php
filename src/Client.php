@@ -667,14 +667,18 @@ class Client
 
         if ($size !== null) {
             $remaining = $size - $current;
+
             if ($remaining >= 0) {
                 return $remaining;
             }
         }
 
         $stream->seek(0, SEEK_END);
+
         $end = $stream->tell();
+
         $stream->seek($current);
+
         $remaining = $end - $current;
 
         if ($remaining < 0) {
